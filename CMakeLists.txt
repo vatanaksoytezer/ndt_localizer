@@ -1,63 +1,113 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(ndt_localizer)
 
-set(CMAKE_CXX_STANDARD 11)
+# Set C++ Standard
+set(CMAKE_CXX_STANDARD 17)
 
-find_package(catkin REQUIRED COMPONENTS
-        roscpp
-        tf2
-        tf2_ros
-        tf2_geometry_msgs
-        std_msgs
-        geometry_msgs
-        sensor_msgs
-        nav_msgs
-        diagnostic_msgs
-        pcl_conversions
-        pcl_ros
-        message_generation
-        )
-
-generate_messages(
-        DEPENDENCIES
-        std_msgs
-)
-
+# Find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(builtin_interfaces REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(PCL REQUIRED QUIET)
+find_package(pcl_conversions REQUIRED)
+find_package(pcl_ros REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 
-catkin_package(
-        INCLUDE_DIRS include
-        CATKIN_DEPENDS
-        roscpp
-        tf2
-        tf2_ros
-        tf2_geometry_msgs
-        geometry_msgs
-        sensor_msgs
-        nav_msgs
-        diagnostic_msgs
-        pcl_conversions
-        pcl_ros
-        message_generation
+# Message Gen
+# rosidl_generate_interfaces(${PROJECT_NAME}
+#   "msg/ndt_stat.msg"
+#   DEPENDENCIES builtin_interfaces std_msgs
+# )
+
+# Include directories
+include_directories(include ${PCL_INCLUDE_DIRS})
+
+# Build flags
+set(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
+
+#############
+## Executables ##
+#############
+
+# voxel_grid_filter node
+add_executable(voxel_grid_filter src/voxel_grid_filter.cpp)
+target_link_libraries(voxel_grid_filter ${PCL_LIBRARIES})
+ament_target_dependencies(voxel_grid_filter
+  rclcpp
+  tf2
+  tf2_ros
+  tf2_geometry_msgs
+  std_msgs
+  geometry_msgs
+  sensor_msgs
+  nav_msgs
+  diagnostic_msgs
+  pcl_conversions
+  pcl_ros
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS})
+# map_loader node
+add_executable(map_loader src/map_loader.cpp)
+target_link_libraries(map_loader ${PCL_LIBRARIES})
+ament_target_dependencies(map_loader
+  rclcpp
+  tf2
+  tf2_ros
+  tf2_geometry_msgs
+  std_msgs
+  geometry_msgs
+  sensor_msgs
+  nav_msgs
+  diagnostic_msgs
+  pcl_conversions
+  pcl_ros
+)
 
-###########
-## Build ##
-###########
+# ndt_localizer_node
+# add_executable(ndt_localizer_node src/ndt.cpp)
+# target_link_libraries(ndt_localizer_node ${PCL_LIBRARIES})
+# ament_target_dependencies(ndt_localizer_node
+#   rclcpp
+#   tf2
+#   tf2_ros
+#   tf2_geometry_msgs
+#   std_msgs
+#   geometry_msgs
+#   sensor_msgs
+#   nav_msgs
+#   diagnostic_msgs
+#   pcl_conversions
+#   pcl_ros
+# )
 
-include_directories(include ${catkin_INCLUDE_DIRS})
-SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
+#############
+## Install ##
+#############
 
-add_executable(voxel_grid_filter nodes/points_downsampler.cpp)
+# Install targets
+install(TARGETS voxel_grid_filter map_loader # ndt_localizer_node
+  DESTINATION lib/${PROJECT_NAME}
+)
 
-add_dependencies(voxel_grid_filter ${catkin_EXPORTED_TARGETS})
+# Install include files
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION include/${PROJECT_NAME}
+  FILES_MATCHING PATTERN "*.h"
+)
 
-target_link_libraries(voxel_grid_filter ${catkin_LIBRARIES})
+# Install other directories
+install(DIRECTORY launch map
+  DESTINATION share/${PROJECT_NAME}
+)
 
-add_executable(map_loader nodes/map_loader.cpp)
-target_link_libraries(map_loader ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-
-add_executable(ndt_localizer_node nodes/ndt.cpp)
-target_link_libraries(ndt_localizer_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+ament_export_dependencies(rosidl_default_runtime)
+# Finalize package
+ament_package()
