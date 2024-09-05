@@ -18,14 +18,9 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(tf2_eigen REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
-
-# Message Gen
-# rosidl_generate_interfaces(${PROJECT_NAME}
-#   "msg/ndt_stat.msg"
-#   DEPENDENCIES builtin_interfaces std_msgs
-# )
 
 # Include directories
 include_directories(include ${PCL_INCLUDE_DIRS})
@@ -72,28 +67,29 @@ ament_target_dependencies(map_loader
 )
 
 # ndt_localizer_node
-# add_executable(ndt_localizer_node src/ndt.cpp)
-# target_link_libraries(ndt_localizer_node ${PCL_LIBRARIES})
-# ament_target_dependencies(ndt_localizer_node
-#   rclcpp
-#   tf2
-#   tf2_ros
-#   tf2_geometry_msgs
-#   std_msgs
-#   geometry_msgs
-#   sensor_msgs
-#   nav_msgs
-#   diagnostic_msgs
-#   pcl_conversions
-#   pcl_ros
-# )
+add_executable(ndt_localizer_node src/ndt.cpp)
+target_link_libraries(ndt_localizer_node ${PCL_LIBRARIES})
+ament_target_dependencies(ndt_localizer_node
+  rclcpp
+  tf2
+  tf2_eigen
+  tf2_ros
+  tf2_geometry_msgs
+  std_msgs
+  geometry_msgs
+  sensor_msgs
+  nav_msgs
+  diagnostic_msgs
+  pcl_conversions
+  pcl_ros
+)
 
 #############
 ## Install ##
 #############
 
 # Install targets
-install(TARGETS voxel_grid_filter map_loader # ndt_localizer_node
+install(TARGETS voxel_grid_filter map_loader ndt_localizer_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
