@@ -19,7 +19,7 @@ def generate_launch_description():
         DeclareLaunchArgument('output_pose_with_covariance_topic', default_value='ndt_pose_with_covariance', description='Estimated self position with covariance'),
         DeclareLaunchArgument('output_diagnostics_topic', default_value='diagnostics', description='Diagnostic topic'),
         DeclareLaunchArgument('base_frame', default_value='base_link', description='Vehicle reference frame'),
-        DeclareLaunchArgument('trans_epsilon', default_value='0.05', description='The maximum difference between two consecutive transformations for convergence'),
+        DeclareLaunchArgument('trans_epsilon', default_value='0.01', description='The maximum difference between two consecutive transformations for convergence'),
         DeclareLaunchArgument('step_size', default_value='0.1', description='The newton line search maximum step length'),
         DeclareLaunchArgument('resolution', default_value='3.0', description='The ND voxel grid resolution'),
         DeclareLaunchArgument('max_iterations', default_value='30', description='The number of iterations required to calculate alignment'),
